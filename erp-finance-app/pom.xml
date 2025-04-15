@@ -16,6 +16,7 @@
         <module>erp-ar</module>
         <module>erp-ap</module>
         <module>erp-common</module>
+        <module>erp-main</module>
     </modules>
 
 </project>
