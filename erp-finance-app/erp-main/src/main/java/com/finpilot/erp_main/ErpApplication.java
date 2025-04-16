@@ -1,4 +1,4 @@
-package com.yourname.erp;
+package com.finpilot.erp_main;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
