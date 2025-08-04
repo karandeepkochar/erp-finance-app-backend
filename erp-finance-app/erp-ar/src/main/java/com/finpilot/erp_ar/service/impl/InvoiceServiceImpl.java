@@ -94,6 +94,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .status(savedInvoice.getStatus())
                 .remarks(savedInvoice.getRemarks())
                 .lineItems(lineItemResponses)
+                .createdAt(savedInvoice.getCreatedAt())
+                .updatedAt(savedInvoice.getUpdatedAt())
                 .build();
     }
 
