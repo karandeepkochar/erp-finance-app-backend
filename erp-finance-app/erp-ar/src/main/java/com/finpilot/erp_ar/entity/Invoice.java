@@ -2,6 +2,7 @@ package com.finpilot.erp_ar.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.finpilot.erp_ar.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,7 +45,7 @@ public class Invoice extends Auditable{
 
     private LocalDate invoiceDate;
     private LocalDate dueDate;
-    private String status;
+    private InvoiceStatus status;
 
     private BigDecimal totalAmount;
     private BigDecimal taxAmount;
