@@ -1,4 +1,5 @@
 package com.finpilot.erp_ap.entity;
+
 import jakarta.persistence.*;
 
 @Entity

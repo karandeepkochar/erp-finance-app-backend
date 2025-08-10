@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "payment_bill_mapping")
-public class PaymentBillMapping {
+public class PaymentBillMapping extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "vendors")
-public class Vendor {
+public class Vendor extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

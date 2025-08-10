@@ -1,5 +1,6 @@
 package com.finpilot.erp_ap.entity;
 
+import com.finpilot.erp_ap.enums.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "payments")
-public class Payment {
+public class Payment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +42,8 @@ public class Payment {
     private BigDecimal fees;
 
     @Column(length = 30)
-    private String status; // INITIATED, COMPLETED, FAILED, CANCELLED
-
+    private PaymentStatus status;
+    
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentBillMapping> allocations = new ArrayList<>();
 }

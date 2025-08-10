@@ -1,11 +1,12 @@
 package com.finpilot.erp_ap.entity;
+
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "vendor_bill_lines")
-public class VendorBillLine {
+public class VendorBillLine extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

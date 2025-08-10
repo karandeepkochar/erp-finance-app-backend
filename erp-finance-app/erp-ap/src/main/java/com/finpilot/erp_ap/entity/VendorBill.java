@@ -1,4 +1,6 @@
 package com.finpilot.erp_ap.entity;
+
+import com.finpilot.erp_ap.enums.VendorBillStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -6,9 +8,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "vendor_bills")
-public class VendorBill {
+public class VendorBill extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +40,7 @@ public class VendorBill {
     private String currency;
 
     @Column(length = 30)
-    private String status; // DRAFT, POSTED, PARTIALLY_PAID, PAID, CANCELLED
+    private VendorBillStatus status; // DRAFT, POSTED, PARTIALLY_PAID, PAID, CANCELLED
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VendorBillLine> lines = new ArrayList<>();

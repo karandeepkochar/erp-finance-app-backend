@@ -1,4 +1,6 @@
 package com.finpilot.erp_ap.entity;
+
+import com.finpilot.erp_ap.enums.VendorCreditStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -29,5 +31,5 @@ public class VendorCredit {
     private LocalDate createdDate;
 
     @Column(length = 30)
-    private String status; // AVAILABLE, APPLIED, REFUNDED
+    private VendorCreditStatus status;  // AVAILABLE, APPLIED, REFUNDED
 }
