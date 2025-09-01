@@ -1,14 +1,15 @@
 package com.finpilot.erp_ar.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.finpilot.erp_ar.entity.Invoice;
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class InvoiceLineItemResponseDTO {
     private Long invoiceLineItemid;

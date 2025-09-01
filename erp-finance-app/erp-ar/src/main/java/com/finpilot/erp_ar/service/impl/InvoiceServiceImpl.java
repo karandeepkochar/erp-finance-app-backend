@@ -3,16 +3,22 @@ package com.finpilot.erp_ar.service.impl;
 import com.finpilot.erp_ar.dto.InvoiceLineItemResponseDTO;
 import com.finpilot.erp_ar.dto.InvoiceRequestDTO;
 import com.finpilot.erp_ar.dto.InvoiceResponseDTO;
+import com.finpilot.erp_ar.dto.InvoiceUpdateRequestDTO;
 import com.finpilot.erp_ar.entity.Customer;
 import com.finpilot.erp_ar.entity.Invoice;
 import com.finpilot.erp_ar.entity.InvoiceLineItem;
 import com.finpilot.erp_ar.enums.InvoiceStatus;
 import com.finpilot.erp_ar.repository.CustomerRepository;
+import com.finpilot.erp_ar.repository.InvoiceLineItemRepository;
 import com.finpilot.erp_ar.repository.InvoiceRepository;
 import com.finpilot.erp_ar.service.InvoiceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import jakarta.annotation.PostConstruct;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,10 +34,14 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final CustomerRepository customerRepository;
+    private final InvoiceLineItemRepository invoiceLineItemRepository;
+    private final ModelMapper modelMapper;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, CustomerRepository customerRepository) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, CustomerRepository customerRepository, InvoiceLineItemRepository invoiceLineItemRepository, ModelMapper modelMapper) {
         this.invoiceRepository = invoiceRepository;
         this.customerRepository = customerRepository;
+        this.invoiceLineItemRepository = invoiceLineItemRepository;
+        this.modelMapper = modelMapper;
     }
     @Override
     public InvoiceResponseDTO createInvoice(InvoiceRequestDTO invoiceRequestDTO) {
@@ -97,6 +107,72 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .createdAt(savedInvoice.getCreatedAt())
                 .updatedAt(savedInvoice.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public InvoiceResponseDTO updateInvoice(InvoiceUpdateRequestDTO dto) {
+
+        Invoice invoice = invoiceRepository.findById(dto.getInvoiceId())
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
+
+        // Validate status transition
+        validateStatusChange(invoice.getStatus(), dto.getStatus());
+
+        // If invoice is APPROVED — allow only remarks/status change
+        if (invoice.getStatus() == InvoiceStatus.APPROVED) {
+            if (dto.getRemarks() != null) invoice.setRemarks(dto.getRemarks());
+            if (dto.getStatus() != null) invoice.setStatus(dto.getStatus());
+            // No other field changes
+        }
+        else if (invoice.getStatus() == InvoiceStatus.DRAFT) {
+            // Update basic fields if not null
+            if (dto.getInvoiceDate() != null) invoice.setInvoiceDate(dto.getInvoiceDate());
+            if (dto.getDueDate() != null) invoice.setDueDate(dto.getDueDate());
+            if (dto.getTotalAmount() != null) invoice.setTotalAmount(dto.getTotalAmount());
+            if (dto.getRemarks() != null) invoice.setRemarks(dto.getRemarks());
+            if (dto.getStatus() != null) invoice.setStatus(dto.getStatus());
+
+            // Line items update (simple replace for MVP)
+            if (dto.getLineItems() != null && !dto.getLineItems().isEmpty()) {
+                invoice.getLineItems().clear();
+                List<InvoiceLineItem> newItems = dto.getLineItems().stream()
+                        .map(li -> modelMapper.map(li, InvoiceLineItem.class))
+                        .peek(li -> li.setInvoice(invoice))
+                        .collect(Collectors.toList());
+                invoice.getLineItems().addAll(newItems);
+            }
+        }
+
+        Invoice saved = invoiceRepository.save(invoice);
+        return modelMapper.map(saved, InvoiceResponseDTO.class);
+    }
+
+    private void validateStatusChange(InvoiceStatus current, InvoiceStatus requested) {
+        if (requested == null) return;
+
+        switch (current) {
+            case DRAFT -> {
+                if (!(requested.equals(InvoiceStatus.APPROVED) || requested.equals(InvoiceStatus.VOID) || requested.equals(InvoiceStatus.DRAFT))) {
+                    throw new IllegalArgumentException("Invalid status change from DRAFT");
+                }
+            }
+            case APPROVED -> {
+                if (!(requested.equals(InvoiceStatus.VOID) || requested.equals(InvoiceStatus.APPROVED))) {
+                    throw new IllegalArgumentException("Invalid status change from APPROVED");
+                }
+            }
+            case VOID -> {
+                throw new IllegalArgumentException("Cancelled invoices cannot be modified");
+            }
+        }
+    }
+
+    @Override
+    public List<InvoiceResponseDTO> getAllInvoices() {
+        List<Invoice> invoices = invoiceRepository.findAll();
+        return invoices.stream()
+                .map(invoice -> modelMapper.map(invoice, InvoiceResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     private String generateInvoiceNumber() {

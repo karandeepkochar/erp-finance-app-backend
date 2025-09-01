@@ -1,7 +1,6 @@
 package com.finpilot.erp_ar.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import com.finpilot.erp_ar.enums.InvoiceStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -12,26 +11,17 @@ import java.util.List;
 
 @Data
 @Builder
-public class InvoiceRequestDTO {
+public class InvoiceUpdateRequestDTO {
 
     @NotNull
-    private Long customerId;
+    private Long invoiceId; // Invoice ID
 
-    @NotNull
     private LocalDate invoiceDate;
-
-    @NotNull
     private LocalDate dueDate;
-
-    @NotNull
     private BigDecimal totalAmount;
-
     private String remarks;
 
-    @NotEmpty
     private List<InvoiceLineItemDTO> lineItems;
 
-    //private String referenceNumber; // Optional: PO, Sales Order
-
-    private String currency; // Optional: e.g., "USD"
+    private InvoiceStatus status; // Optional: "DRAFT", "APPROVED", "CANCELLED"
 }
