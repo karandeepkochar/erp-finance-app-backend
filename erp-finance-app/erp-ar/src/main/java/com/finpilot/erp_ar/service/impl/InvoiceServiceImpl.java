@@ -175,6 +175,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .collect(Collectors.toList());
     }
 
+    //generates invoice number in format INV-2025-0001
     private String generateInvoiceNumber() {
         Long nextVal = ((Number) entityManager.createNativeQuery("SELECT nextval('seq_invoice_number')")
                 .getSingleResult()).longValue();
